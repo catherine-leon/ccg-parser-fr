@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CCG Parser</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+<header>
+  <h1>CCG <span>Parser</span></h1>
+  <span class="subtitle">Grammaires de Catégories Combinatoires</span>
+</header>
+
+<div class="main">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <h3>Phrase</h3>
+      <div class="input-wrap">
+        <input type="text" id="phrase-input" placeholder="ex: Garfield mange Mickey" />
+      </div>
+      <button class="parse-btn" id="parse-btn">Analyser</button>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Exemples</h3>
+      <div class="examples" id="examples"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Options</h3>
+      <div class="options">
+        <div class="toggle-row">
+          <span>Type Raising</span>
+          <label class="toggle">
+            <input type="checkbox" id="opt-typer" checked />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <span>Analyses partielles</span>
+          <label class="toggle">
+            <input type="checkbox" id="opt-partial" checked />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <span>Échecs dans dérivation</span>
+          <label class="toggle">
+            <input type="checkbox" id="opt-failures" />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Lexique</h3>
+      <div class="lex-list" id="lex-list"></div>
+      <div class="add-word-row">
+        <input type="text" id="new-word" placeholder="mot" />
+        <input type="text" id="new-cat" placeholder="S\NP" />
+        <button id="add-word-btn">+</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Métriques</h3>
+      <button class="parse-btn" id="bench-btn" style="background:var(--accent2);margin-bottom:0.5rem">Benchmark toutes les phrases</button>
+      <div id="bench-results" style="font-size:0.68rem;color:var(--muted)"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Légende</h3>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--rule-app)"></div>App &gt; / &lt;</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--rule-comp)"></div>Comp &gt;B / &lt;B</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--rule-coord)"></div>Coord &lt;*&gt;</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--rule-typer)"></div>Type Raising T</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--rule-err)"></div>Blocage</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="content" id="content">
+    <div class="empty-state">
+      <div class="big">∀x.∃y</div>
+      <div>Entrez une phrase et cliquez sur Analyser</div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
