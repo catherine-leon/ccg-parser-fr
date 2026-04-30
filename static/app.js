@@ -1,4 +1,4 @@
-// Frontend léger : il ne fait plus le parsing CCG.
+// Frontend léger 
 // Il envoie la phrase au backend Python, puis affiche les dérivations retournées.
 
 const COLORS = {
