@@ -4,69 +4,18 @@ from typing import Union, Optional, Any
 
 Cat = Union[str, dict]
 
-LEXIQUE_RAW: dict[str, list[str]] = {
-    'Garfield': ['NP'], 'Mickey': ['NP'], 'Minnie': ['NP'],
-    'Sylvestre': ['NP'], 'Jerry': ['NP'], 'Tweety': ['NP'],
-    'le': ['NP/N'], 'la': ['NP/N'], 'les': ['NP/N'], 'un': ['NP/N'], 'une': ['NP/N'],
-    'chat': ['N'], 'souris': ['N'], 'poisson': ['N'],
-    'dort': ['S\\NP'], 'vole': ['S\\NP'], 'court': ['S\\NP'],
-    'mange': ['S\\NP', 'S\\NP/NP'],
-    'devore': ['S\\NP', 'S\\NP/NP'],
-    'tue': ['S\\NP', 'S\\NP/NP'],
-    'bate': ['S\\NP', 'S\\NP/NP'],
-    'dépiaute': ['S\\NP', 'S\\NP/NP'],
-    'attaque': ['S\\NP', 'S\\NP/NP'],
-    'manger': ['S\\NP', 'S\\NP/NP'],
-    'attraper': ['S\\NP/NP'],
-    'va': ['(S\\NP)/(S\\NP)'],
-    'devrait': ['(S\\NP)/(S\\NP)'],
-    'peut': ['(S\\NP)/(S\\NP)'],
-    'doit': ['(S\\NP)/(S\\NP)'],
-    'voracement': ['S\\S', '(S\\NP/NP)\\(S\\NP/NP)'],
-    'violemment': ['S\\S', '(S\\NP/NP)\\(S\\NP/NP)'],
-    'rapidement': ['S\\S', '(S\\NP/NP)\\(S\\NP/NP)'],
-    'lentement': ['S\\S', '(S\\NP/NP)\\(S\\NP/NP)'],
-    'et': ['NP\\NP/NP', 'S\\S/S', '(S\\NP)\\(S\\NP)/(S\\NP)', '(S\\NP/NP)\\(S\\NP/NP)/(S\\NP/NP)'],
-    'que': ['(NP\\NP)/(S/NP)', 'S/S'],
-    'qui': ['(NP\\NP)/(S\\NP)'],
-    'grand': ['N/N'], 'grande': ['N/N'], 'petit': ['N/N'], 'petite': ['N/N'],
-    'gros': ['N/N'], 'grosse': ['N/N'], 'vieux': ['N/N'], 'jeune': ['N/N'],
-    'montre': ['S\\NP', 'S\\NP/NP', '(S\\NP/NP)/NP'],
-    'donne': ['S\\NP', 'S\\NP/NP', '(S\\NP/NP)/NP'],
-    'pense': ['S\\NP', '(S\\NP)/S'],
-    'croit': ['S\\NP', '(S\\NP)/S'],
-    'dit': ['S\\NP', '(S\\NP)/S', '(S\\NP)/NP'],
-    'souvent': ['S\\S', '(S\\NP/NP)\\(S\\NP/NP)', '(S\\NP)/(S\\NP)'],
-    'a': ['(S\\NP)/(S\\NP)', '(S\\NP)/((S\\NP)/NP)', '((S\\NP)/NP)/((S\\NP)/NP)'],
-    'ont': ['(S\\NP)/(S\\NP/NP)'],
-    'est': ['(S\\NP)/(S\\NP)'],
-    'sont': ['(S\\NP)/(S\\NP)'],
-    'mangé': ['S\\NP', 'S\\NP/NP'],
-    'dormi': ['S\\NP'],
-    'couru': ['S\\NP'],
-    'tué': ['S\\NP', 'S\\NP/NP'],
-    'dépauté': ['S\\NP', 'S\\NP/NP'],
-    'ne': ['(S\\NP)/(S\\NP)'],
-    'pas': ['(S\\NP)\\(S\\NP)', '(S\\NP/NP)\\(S\\NP/NP)'],
-}
+from base_lexique import BASE_LEXIQUE_RAW, BASE_EXAMPLES
 
-EXAMPLES = [
-    'Garfield mange', 'Garfield mange Mickey', 'le chat mange la souris',
-    'Garfield va manger Mickey', 'Sylvestre mange Mickey et Minnie',
-    'Mickey dort voracement', 'Mickey bate Garfield violemment',
-    'Garfield mange voracement Mickey', 'Garfield va attraper et devrait manger Minnie',
-    'Garfield tue et Sylvestre dépiaute Jerry', 'Mickey que Garfield devore dort',
-    'Garfield devore Mickey que Jerry tue', 'Garfield mange et Mickey mange',
-    'le grand chat mange la petite souris', 'Garfield montre Mickey Jerry',
-    'Garfield donne Minnie Jerry', 'Garfield montre le chat Jerry',
-    'Garfield pense que Mickey dort', 'Garfield ne mange pas Mickey',
-    'Garfield souvent mange Mickey', 'Garfield a mangé Minnie', 'Mickey a dormi',
-    'Garfield a mangé Minnie voracement', 'Garfield Mickey mange',
-    'Garfield mange voracement Minnie',
-]
+LEXIQUE_RAW = BASE_LEXIQUE_RAW
+EXAMPLES = BASE_EXAMPLES
+
+
 
 
 def strip_outer_parens(s: str) -> str:
+    """Supprime les parenthèses extérieures redondantes d'une catégorie.
+    Ex: '((S\\NP)/NP)' -> '(S\\NP)/NP'
+    """
     s = s.strip()
     while s.startswith('(') and s.endswith(')'):
         depth = 0
@@ -87,6 +36,11 @@ def strip_outer_parens(s: str) -> str:
 
 
 def parse_cat(s: str) -> Cat:
+    """Convertit une chaîne de catégorie CCG en représentation interne récursive.
+    Une catégorie atomique ('S', 'NP', 'N') est retournée comme chaîne.
+    Une catégorie fonctionnelle est retournée comme dict {'dir': 'R'|'L', 'left': Cat, 'right': Cat}.
+    Ex: '(S\\NP)/NP' -> {'dir': 'R', 'left': {'dir': 'L', 'left': 'S', 'right': 'NP'}, 'right': 'NP'}
+    """
     s = strip_outer_parens(s)
     depth = 0
     for i in range(len(s) - 1, -1, -1):
@@ -101,6 +55,9 @@ def parse_cat(s: str) -> Cat:
 
 
 def show_cat(cat: Cat) -> str:
+    """Convertit une catégorie interne en notation textuelle CCG.
+    Inverse de parse_cat. Ex: {'dir': 'R', 'left': 'S\\NP', 'right': 'NP'} -> '(S\\NP)/NP'
+    """
     if isinstance(cat, str):
         return cat
     sep = '/' if cat['dir'] == 'R' else '\\'
@@ -110,6 +67,9 @@ def show_cat(cat: Cat) -> str:
 
 
 def eq_cat(a: Cat, b: Cat) -> bool:
+    """Teste l'égalité structurelle de deux catégories CCG.
+    Deux catégories sont égales si elles ont la même direction et les mêmes sous-catégories.
+    """
     if isinstance(a, str) and isinstance(b, str):
         return a == b
     if isinstance(a, str) or isinstance(b, str):
@@ -118,11 +78,19 @@ def eq_cat(a: Cat, b: Cat) -> bool:
 
 
 def type_raising(cat: Cat, y: Cat | str = 'S') -> Cat:
+    """Applique la montée catégorielle (Type Raising) à une catégorie.
+    Transforme X en T/(T\\X), par défaut T=S.
+    Ex: NP -> S/(S\\NP), ce qui permet au sujet de se comporter comme une fonction.
+    """
     yc = parse_cat(y) if isinstance(y, str) else y
     return {'dir': 'R', 'left': yc, 'right': {'dir': 'L', 'left': yc, 'right': cat}}
 
 
 def make_lexique(extra: Optional[dict[str, list[str]]] = None) -> dict[str, list[Cat]]:
+    """Construit le lexique opérationnel à partir de LEXIQUE_RAW.
+    Convertit toutes les catégories de leur forme textuelle en représentation interne.
+    Le paramètre extra permet d'étendre le lexique de base (utilisé pour le Gorafi).
+    """
     raw = {k: list(v) for k, v in LEXIQUE_RAW.items()}
     if extra:
         raw.update(extra)
@@ -130,10 +98,23 @@ def make_lexique(extra: Optional[dict[str, list[str]]] = None) -> dict[str, list
 
 
 def lookup(word: str, lexique: dict[str, list[Cat]]) -> list[Cat]:
+    """Cherche les catégories d'un mot dans le lexique.
+    Essaie d'abord la forme exacte, puis la forme en minuscules.
+    Retourne une liste vide si le mot est inconnu.
+    """
     return lexique.get(word) or lexique.get(word.lower()) or []
 
 
 def apply_rules(g: Cat, d: Cat) -> list[tuple[Cat, str]]:
+    """Applique les règles de combinaison CCG à deux catégories adjacentes.
+    Retourne la liste des (catégorie résultante, nom de la règle) possibles.
+    Règles implémentées :
+    - App>  : X/Y + Y   -> X  (application droite)
+    - App<  : Y + X\\Y  -> X  (application gauche)
+    - Comp>B: X/Y + Y/Z -> X/Z  (composition harmonique droite)
+    - Comp<B: Y\\Z + X\\Y -> X\\Z  (composition harmonique gauche)
+    La coordination <*> est traitée séparément dans la boucle CYK (règle ternaire).
+    """
     results: list[tuple[Cat, str]] = []
     if isinstance(g, dict) and g['dir'] == 'R' and eq_cat(g['right'], d):
         results.append((g['left'], 'App>'))
@@ -147,14 +128,17 @@ def apply_rules(g: Cat, d: Cat) -> list[tuple[Cat, str]]:
 
 
 def leaf(word: str, cat: Cat, pos: int) -> dict[str, Any]:
+    """Crée un nœud feuille de l'arbre de dérivation (entrée lexicale)."""
     return {'type': 'leaf', 'mot': word, 'cat': show_cat(cat), 'pos': pos}
 
 
 def node(cat: Cat, rule: str, left: dict[str, Any], right: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    """Crée un nœud interne de l'arbre de dérivation (résultat d'une règle)."""
     return {'type': 'node', 'cat': show_cat(cat), 'rule': rule, 'left': left, 'right': right}
 
 
 def span_of(t: dict[str, Any]) -> tuple[int, int]:
+    """Retourne le span (début, fin) couvert par un nœud de l'arbre."""
     if t['type'] == 'leaf':
         return t['pos'], t['pos']
     if not t.get('right'):
@@ -163,6 +147,10 @@ def span_of(t: dict[str, Any]) -> tuple[int, int]:
 
 
 def tree_steps(t: dict[str, Any]) -> list[dict[str, Any]]:
+    """Sérialise un arbre de dérivation en liste d'étapes pour le frontend.
+    Chaque étape contient : span (d, f), catégorie résultante et règle appliquée.
+    L'ordre respecte la progression gauche-droite de la dérivation.
+    """
     steps: list[dict[str, Any]] = []
     def visit(n: dict[str, Any]):
         if not n or n['type'] == 'leaf':
@@ -192,6 +180,9 @@ def tree_steps(t: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def word_cats(t: dict[str, Any]) -> dict[str, str]:
+    """Extrait la catégorie assignée à chaque mot (par position) dans un arbre.
+    Retourne un dict {position: catégorie} utilisé par le frontend pour l'affichage.
+    """
     cats: dict[str, str] = {}
     def visit(n: dict[str, Any]):
         if not n:
@@ -207,6 +198,28 @@ def word_cats(t: dict[str, Any]) -> dict[str, str]:
 
 
 def parse(phrase: str, type_raise: bool = True, max_trees: int = 5, extra_lexique: Optional[dict[str, list[str]]] = None) -> dict[str, Any]:
+    """Parse une phrase en CCG et retourne toutes les analyses.
+
+    Algorithme CYK (Cocke-Younger-Kasami) bottom-up :
+    - Initialisation : chaque mot reçoit ses catégories lexicales + TypeR si NP
+    - Remplissage : pour chaque span [i,j], on essaie toutes les partitions [i,k]+[k+1,j]
+      et on applique les règles binaires (App>, App<, Comp>B, Comp<B) et la coordination (<*>)
+    - TypeR est aussi appliqué à tous les spans NP construits (pas seulement les feuilles)
+
+    Args:
+        phrase:       La phrase à analyser (séparée par espaces).
+        type_raise:   Active/désactive la montée catégorielle.
+        max_trees:    Nombre maximum d'arbres stockés par cellule CYK.
+        extra_lexique: Entrées lexicales supplémentaires (ex: lexique Gorafi).
+
+    Returns:
+        Dict contenant :
+        - mots       : liste des tokens
+        - complete   : analyses complètes (menant à S) sérialisées
+        - partials   : chemins partiels (impasses) sérialisés, max 50
+        - metrics    : successes, impasses (comptage réel), rulesAttempted, etc.
+        - lexique    : lexique utilisé pour cette phrase
+    """
     mots = [m for m in phrase.strip().split() if m]
     n = len(mots)
     if n == 0:
@@ -361,13 +374,30 @@ def parse(phrase: str, type_raise: bool = True, max_trees: int = 5, extra_lexiqu
             serial_path.append({k: v for k, v in item.items() if k != 'cat_obj'})
         partials.append({'label': f'Blocage {idx+1}', 'path': serial_path, 'steps': steps, 'wordCats': wc, 'partial': True})
 
+    # Compter les vraies impasses sans limite pour affichage correct
+    all_impasses_count: list[list[dict[str, Any]]] = []
+    find_partials(0, [], all_impasses_count, 999999)
+    seen_count: set[str] = set()
+    true_impasse_count = 0
+    for p in all_impasses_count:
+        if len(p) == 1 and p[0]['i'] == 0 and p[0]['j'] == n-1 and p[0].get('cat'):
+            continue
+        nulls = [x for x in p if not x.get('cat')]
+        if len(nulls) > 1:
+            continue
+        sig = '|'.join(f"{x['i']}-{x['j']}-{x.get('cat') or 'null'}" for x in p)
+        if sig in seen_count:
+            continue
+        seen_count.add(sig)
+        true_impasse_count += 1
+
     return {
         'mots': mots,
         'complete': complete,
         'partials': partials,
         'metrics': {
-            'successes': len(complete),
-            'impasses': len(partials_clean),
+            'successes': len(complete_trees),
+            'impasses': true_impasse_count,
             'rulesAttempted': rules_attempted,
             'rulesFailed': rules_failed,
             'failedPairs': failed_pairs,
