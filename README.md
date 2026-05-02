@@ -9,19 +9,20 @@ Le système explore l'ensemble des dérivations syntaxiques possibles pour une p
 L'interface visualise les dérivations sous forme de diagrammes SVG interactifs, reproduisant la notation standard des grammaires CCG.
 
 ## Structure du projet
-ccg-parser/
-├── parser.py            # Logique CCG : lexique, règles, algorithme CYK
-├── base_lexique.py      # Lexique de base (phrases du cours)
-├── gorafi_lexique.py    # Lexique étendu (phrases du Gorafi)
-├── app.py               # API Flask — parseur principal (port 5000)
-├── gorafi_app.py        # API Flask — parseur Gorafi (port 5001)
-├── requirements.txt
-├── templates/
-│   ├── index.html       # Interface principale
-│   └── gorafi.html      # Interface Gorafi
-└── static/
-├── app.js           # Rendu SVG, appels API
-└── style.css
+
+    ccg-parser/
+    ├── parser.py            # Logique CCG : lexique, règles, algorithme CYK
+    ├── base_lexique.py      # Lexique de base (phrases du cours)
+    ├── gorafi_lexique.py    # Lexique étendu (phrases du Gorafi)
+    ├── app.py               # API Flask — parseur principal (port 5000)
+    ├── gorafi_app.py        # API Flask — parseur Gorafi (port 5001)
+    ├── requirements.txt
+    ├── templates/
+    │   ├── index.html       # Interface principale
+    │   └── gorafi.html      # Interface Gorafi
+    └── static/
+        ├── app.js           # Rendu SVG, appels API
+        └── style.css
 
 ## Installation et lancement
 
