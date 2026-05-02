@@ -1,4 +1,4 @@
-// Frontend léger 
+// Frontend 
 // Il envoie la phrase au backend Python, puis affiche les dérivations retournées.
 
 const COLORS = {
@@ -258,7 +258,7 @@ async function doParseAndRender() {
     displayArea.innerHTML = '';
     displayArea.appendChild(renderDerivation(mots, allAnalyses[idx]));
 
-    if (document.getElementById('opt-failures').checked && failedPairs.length > 0) {
+    if (false && failedPairs.length > 0) { // opt-failures removed
       const failBlock = document.createElement('div');
       failBlock.style.cssText = 'margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border)';
       const title = document.createElement('div');
@@ -280,7 +280,10 @@ async function doParseAndRender() {
     }
   }
 
+  let completeShown = 0;
   allAnalyses.forEach((a, i) => {
+    if (!a.partial && completeShown >= 100) return;
+    if (!a.partial) completeShown++;
     const btn = document.createElement('button');
     btn.className = 'nav-btn' + (a.partial ? ' partial' : '');
     btn.textContent = a.label;
